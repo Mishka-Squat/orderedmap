@@ -17,6 +17,16 @@ func MakeOrderedMap[K comparable, V any]() OrderedMap[K, V] {
 	}
 }
 
+// NewOrderedMapWithCapacity creates a map with enough pre-allocated space to
+// hold the specified number of elements.
+func MakeOrderedMapWithCapacity[K comparable, V any](capacity int) OrderedMap[K, V] {
+	ll := make([]K, 0, capacity)
+	return OrderedMap[K, V]{
+		kv: map[K]V{},
+		ll: &ll,
+	}
+}
+
 func NewOrderedMap[K comparable, V any]() *OrderedMap[K, V] {
 	return &OrderedMap[K, V]{
 		kv: map[K]V{},
@@ -165,10 +175,23 @@ func (m OrderedMap[K, V]) Delete(key K) (didDelete bool) {
 
 // Copy returns a new OrderedMap with the same elements.
 // Using Copy while there are concurrent writes may mangle the result.
-func (m OrderedMap[K, V]) Copy() *OrderedMap[K, V] {
-	m2 := NewOrderedMapWithCapacity[K, V](m.Len())
+func (m OrderedMap[K, V]) Copy() OrderedMap[K, V] {
+	m2 := MakeOrderedMapWithCapacity[K, V](m.Len())
 	for _, key := range *m.ll {
 		m2.Set(key, m.kv[key])
+	}
+	return m2
+}
+
+// Filter returns a new OrderedMap with the same elements for each keep(key, value) returns true.
+// Using Filter while there are concurrent writes may mangle the result.
+func (m OrderedMap[K, V]) Filter(keep func(key K, value V) bool) OrderedMap[K, V] {
+	m2 := MakeOrderedMapWithCapacity[K, V](m.Len())
+	for _, key := range *m.ll {
+		value := m.kv[key]
+		if keep(key, value) {
+			m2.Set(key, value)
+		}
 	}
 	return m2
 }
