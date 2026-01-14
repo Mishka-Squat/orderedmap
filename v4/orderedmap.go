@@ -177,6 +177,11 @@ func (m Of[K, V]) Has(key K) bool {
 	return exists
 }
 
+// Sort keys in the map.
+func (m Of[K, V]) SortFunc(cmp func(a, b K) int) {
+	slices.SortFunc(*m.ll, cmp)
+}
+
 // Append value to multimap
 func AppendMultiMap[K comparable, V any](m Of[K, []V], key K, value V) Of[K, []V] {
 	if a, ok := m.Get(key); ok {
