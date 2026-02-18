@@ -6,7 +6,7 @@ package orderedmap_test
 import (
 	"testing"
 
-	"github.com/elliotchance/orderedmap/v2"
+	"github.com/igadmg/orderedmap/v2"
 	"github.com/stretchr/testify/assert"
 )
 

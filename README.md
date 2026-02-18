@@ -1,4 +1,4 @@
-# 🔃 github.com/elliotchance/orderedmap/v3 [![GoDoc](https://godoc.org/github.com/elliotchance/orderedmap/v3?status.svg)](https://godoc.org/github.com/elliotchance/orderedmap/v3)
+# 🔃 github.com/igadmg/orderedmap/v3 [![GoDoc](https://godoc.org/github.com/igadmg/orderedmap/v3?status.svg)](https://godoc.org/github.com/igadmg/orderedmap/v3)
 
 ## Basic Usage
 
@@ -6,7 +6,7 @@ An `*OrderedMap` is a high performance ordered map that maintains amortized O(1)
 for `Set`, `Get`, `Delete` and `Len`:
 
 ```go
-import "github.com/elliotchance/orderedmap/v3"
+import "github.com/igadmg/orderedmap/v3"
 
 func main() {
 	m := orderedmap.NewOrderedMap[string, any]()
