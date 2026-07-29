@@ -12,7 +12,7 @@ import (
 
 func TestNewOrderedMap(t *testing.T) {
 	m := orderedmap.NewOrderedMap[int, string]()
-	assert.IsType(t, &orderedmap.OrderedMap[int, string]{}, m)
+	assert.IsType(t, &orderedmap.Of[int, string]{}, m)
 }
 
 func TestGet(t *testing.T) {

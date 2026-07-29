@@ -192,3 +192,29 @@ func AppendMultiMap[K comparable, V any](m Of[K, []V], key K, value V) Of[K, []V
 
 	return m
 }
+
+func PathGet[K comparable](m Of[K, any], path ...K) (v any, ok bool) {
+	r := m
+	li := len(path) - 1
+	for i, name := range path {
+		if i == li {
+			v, ok = r.Get(name)
+			return
+		} else {
+			var rv any
+			rv, ok = r.Get(name)
+			if !ok {
+				return
+			}
+			switch rv := rv.(type) {
+			case Of[K, any]:
+				r = rv
+			default:
+				ok = false
+				return
+			}
+		}
+	}
+
+	return
+}
