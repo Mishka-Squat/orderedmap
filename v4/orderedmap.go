@@ -218,3 +218,38 @@ func PathGet[K comparable](m Of[K, any], path ...K) (v any, ok bool) {
 
 	return
 }
+
+// PathSet sets a value at a nested path, creating intermediate ordered maps
+// as needed. It returns false if an intermediate path segment already holds
+// a non-map value, in which case no changes are made.
+func PathSet[K comparable](m Of[K, any], value any, path ...K) bool {
+	if len(path) == 0 {
+		return false
+	}
+
+	r := m
+	li := len(path) - 1
+	for i, name := range path {
+		if i == li {
+			r.Set(name, value)
+			return true
+		}
+
+		rv, ok := r.Get(name)
+		if !ok {
+			nm := Make[K, any]()
+			r.Set(name, nm)
+			r = nm
+			continue
+		}
+
+		switch rv := rv.(type) {
+		case Of[K, any]:
+			r = rv
+		default:
+			return false
+		}
+	}
+
+	return true
+}
