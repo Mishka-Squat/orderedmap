@@ -253,3 +253,87 @@ func PathSet[K comparable](m Of[K, any], value any, path ...K) bool {
 
 	return true
 }
+
+// PathGetNode retrieves the nested map at path.
+func PathGetNode[K comparable](m Of[K, any], path ...K) (Of[K, any], bool) {
+	if len(path) == 0 {
+		return m, true
+	}
+
+	v, ok := PathGet(m, path...)
+	if !ok {
+		return Make[K, any](), false
+	}
+
+	n, ok := v.(Of[K, any])
+	if !ok {
+		return Make[K, any](), false
+	}
+
+	return n, true
+}
+
+// PathContains reports whether a value exists at path.
+func PathContains[K comparable](m Of[K, any], path ...K) bool {
+	_, ok := PathGet(m, path...)
+	return ok
+}
+
+// PathEnumObjects iterates the nested maps directly under path, skipping
+// any sibling values that are not themselves maps.
+func PathEnumObjects[K comparable](m Of[K, any], path ...K) iter.Seq2[K, Of[K, any]] {
+	o, ok := PathGetNode(m, path...)
+	if !ok {
+		return func(yield func(K, Of[K, any]) bool) {}
+	}
+
+	return func(yield func(K, Of[K, any]) bool) {
+		for name, v := range o.All() {
+			if n, ok := v.(Of[K, any]); ok {
+				if !yield(name, n) {
+					return
+				}
+			}
+		}
+	}
+}
+
+// PathMerge deep-merges src into dst: nested maps are merged recursively,
+// scalar values are overwritten, and keys holding a map on one side and a
+// scalar on the other are left untouched, returning false.
+func PathMerge[K comparable](dst, src Of[K, any]) (ok bool) {
+	for k, v := range src.All() {
+		dv, found := dst.Get(k)
+		if !found {
+			dst.Set(k, v)
+			continue
+		}
+
+		srcNode, okv := v.(Of[K, any])
+		dstNode, okdv := dv.(Of[K, any])
+		switch {
+		case okv && okdv:
+			PathMerge(dstNode, srcNode)
+		case !okv && !okdv:
+			dst.Set(k, v)
+		default:
+			return false
+		}
+	}
+
+	return true
+}
+
+// PathClone deep-clones m, recursively cloning nested maps; other values
+// are copied as-is.
+func PathClone[K comparable](m Of[K, any]) Of[K, any] {
+	r := MakeWithCapacity[K, any](m.Len())
+	for k, v := range m.All() {
+		if n, ok := v.(Of[K, any]); ok {
+			v = PathClone(n)
+		}
+		r.Set(k, v)
+	}
+
+	return r
+}

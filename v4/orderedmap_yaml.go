@@ -18,6 +18,8 @@ func YAML() yamlParser {
 func (fs *yamlParser) UnmarshalYAML(value *yaml.Node) error {
 	// A YAML object/map is represented as a MappingNode
 	switch value.Kind {
+	case yaml.DocumentNode:
+		return fs.UnmarshalYAML(value.Content[0])
 	case yaml.SequenceNode:
 		sequence := []any{}
 		for i := 0; i < len(value.Content); i++ {
