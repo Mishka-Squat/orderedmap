@@ -88,6 +88,10 @@ func (m Of[K, V]) All() iter.Seq2[K, V] {
 // AllFromFront returns an iterator that yields all elements in the map starting
 // at the front (oldest Set element).
 func (m Of[K, V]) AllFromFront() iter.Seq2[K, V] {
+	if m.ll == nil {
+		return func(yield func(key K, value V) bool) {}
+	}
+
 	return func(yield func(key K, value V) bool) {
 		for _, key := range *m.ll {
 			if !yield(key, m.kv[key]) {
@@ -100,6 +104,10 @@ func (m Of[K, V]) AllFromFront() iter.Seq2[K, V] {
 // AllFromBack returns an iterator that yields all elements in the map starting
 // at the back (most recent Set element).
 func (m Of[K, V]) AllFromBack() iter.Seq2[K, V] {
+	if m.ll == nil {
+		return func(yield func(key K, value V) bool) {}
+	}
+
 	return func(yield func(key K, value V) bool) {
 		for _, key := range slices.Backward(*m.ll) {
 			if !yield(key, m.kv[key]) {
@@ -113,6 +121,10 @@ func (m Of[K, V]) AllFromBack() iter.Seq2[K, V] {
 // front (oldest Set element). To create a slice containing all the map keys,
 // use the slices.Collect function on the returned iterator.
 func (m Of[K, V]) Keys() iter.Seq[K] {
+	if m.ll == nil {
+		return func(yield func(key K) bool) {}
+	}
+
 	return func(yield func(key K) bool) {
 		for _, key := range *m.ll {
 			if !yield(key) {
@@ -126,6 +138,10 @@ func (m Of[K, V]) Keys() iter.Seq[K] {
 // the front (oldest Set element). To create a slice containing all the map
 // values, use the slices.Collect function on the returned iterator.
 func (m Of[K, V]) Values() iter.Seq[V] {
+	if m.ll == nil {
+		return func(yield func(value V) bool) {}
+	}
+
 	return func(yield func(value V) bool) {
 		for _, key := range *m.ll {
 			if !yield(m.kv[key]) {
